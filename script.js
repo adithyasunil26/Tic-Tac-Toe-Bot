@@ -49,8 +49,59 @@ function emptysq(){
     return board.filter(s => typeof s == 'number')
 }
 
+function minimax(newboard,player){
+    var availsq =emptysq(newboard);
+    if(checkwin(newboard,player)){
+        return {score: -1};
+    }
+    else if (checkwin(newboard,comp)){
+        return {score: 1};
+    }
+    else if (availsq.length === 0){
+        return {score:0};
+    }
+
+    var moves=[];
+    for(var i=0;i<availsq.length;i++){
+        var move={};
+        move.index=newboard[availsq[i]];
+        newboard[availsq[i]]=player;
+
+        if(player == comp){
+            var result=minimax(newboard,human);
+        }
+        else{
+            var result=minimax(newboard,comp);   
+        }
+        move.score = result.score;
+        newboard[availsq[i]]=move.index;
+        moves.push(move)
+    }
+
+    var bestmove;
+    if(player === comp){
+        var bestscore=-10000;
+        for(var i=0;i<moves.length;i++){
+            if(moves[i].score>bestscore){
+                bestscore=moves[i].score;
+                bestmove=i;
+            }
+        }
+    }
+    else{
+        var bestscore = 10000;
+        for (var i = 0; i < moves.length; i++) {
+            if (moves[i].score < bestscore) {
+                bestscore = moves[i].score;
+                bestmove = i;
+            }
+        }
+    }
+    return moves[bestmove];
+}
+
 function bestspot(){
-    return emptysq()[0];
+    return minimax(board,comp).index;
 }
 
 function turnclick(square){
